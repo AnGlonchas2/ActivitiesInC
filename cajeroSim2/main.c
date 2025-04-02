@@ -12,10 +12,7 @@ int main(){
     while(run){
         switch (mode){
             case 0: mMenu(&mode); break;
-            case 1: 
-                newUser(userarr, &usernum, &mode);
-                usernum++;
-                break;
+            case 1: newUser(userarr, &usernum, &mode); break;
             case 2: retire(userarr, &usernum, &mode); break;
             case 3: deposit(userarr, &usernum, &mode); break;
             case 4: getInfo(userarr, &usernum, &mode); break;
