@@ -10,10 +10,24 @@
 
 typedef struct {
     float money;
-    char name[20];
+    char name[30];
     char nip[5];
     int id;
-}User;
+} User;
+
+void waitForEnter(){
+    char str[2];
+    printf("Presione enter para continuar...");
+    fgets(str, 2, stdin);
+    fflush(stdin);
+    str[strcspn(str, "\n")] = 0;
+}
+
+void sendError(const char* message, int *mode){
+    puts(message);
+    waitForEnter();
+    *mode = 0;
+}
 
 void printUser(User user){
     printf(CLEAR);
@@ -25,49 +39,42 @@ void printUser(User user){
 }
 
 void printTitle(){
-    printf(CLEAR"Cajero BBVA v1.0.0 rev3\n");
-    printf(" .----------------.  .----------------.  .----------------.  .----------------. \n");
-    printf("| .--------------. || .--------------. || .--------------. || .--------------. |\n");
-    printf("| |   ______     | || |   ______     | || | ____   ____  | || |      __      | |\n");
-    printf("| |  |_   _ \\    | || |  |_   _ \\    | || ||_  _| |_  _| | || |     /  \\     | |\n");
-    printf("| |    | |_) |   | || |    | |_) |   | || |  \\ \\   / /   | || |    / /\\ \\    | |\n");
-    printf("| |    |  __'.   | || |    |  __'.   | || |   \\ \\ / /    | || |   / ____ \\   | |\n");
-    printf("| |   _| |__) |  | || |   _| |__) |  | || |    \\ ' /     | || | _/ /    \\ \\_ | |\n");
-    printf("| |  |_______/   | || |  |_______/   | || |     \\_/      | || ||____|  |____|| |\n");
-    printf("| |              | || |              | || |              | || |              | |\n");
-    printf("| '--------------' || '--------------' || '--------------' || '--------------' |\n");
-    printf(" '----------------'  '----------------'  '----------------'  '----------------' \n");
-    printf("Bienvenido\n");
+    puts(CLEAR"Cajero BBVA v1.0.0 rev3");
+    puts(" .----------------.  .----------------.  .----------------.  .----------------. ");
+    puts("| .--------------. || .--------------. || .--------------. || .--------------. |");
+    puts("| |   ______     | || |   ______     | || | ____   ____  | || |      __      | |");
+    puts("| |  |_   _ \\    | || |  |_   _ \\    | || ||_  _| |_  _| | || |     /  \\     | |");
+    puts("| |    | |_) |   | || |    | |_) |   | || |  \\ \\   / /   | || |    / /\\ \\    | |");
+    puts("| |    |  __'.   | || |    |  __'.   | || |   \\ \\ / /    | || |   / ____ \\   | |");
+    puts("| |   _| |__) |  | || |   _| |__) |  | || |    \\ ' /     | || | _/ /    \\ \\_ | |");
+    puts("| |  |_______/   | || |  |_______/   | || |     \\_/      | || ||____|  |____|| |");
+    puts("| |              | || |              | || |              | || |              | |");
+    puts("| '--------------' || '--------------' || '--------------' || '--------------' |");
+    puts(" '----------------'  '----------------'  '----------------'  '----------------' ");
+    puts("Bienvenido");
 }
 
-void waitForEnter(){
-    char str[2];
-    printf("Presione enter para continuar...");
-    fgets(str, sizeof(str), stdin);
-    fflush(stdin);
-}
-
-void getString(const char* message, char* str){
-    printf("%s", message);
-    fgets(str, sizeof(str), stdin);
-    fflush(stdin);
+void getString(const char* message, char* str, const int buffsz){
+    printf("%s",message);
+    fgets(str, buffsz+1, stdin);
     str[strcspn(str, "\n")] = 0;
+    fflush(stdin);
 }
 
 void getInt(const char *message, int *num, int buffsz){
     char getint[buffsz+1];
     printf("%s", message);
     fgets(getint, sizeof(getint), stdin);
-    fflush(stdin);
     *num = strtol(getint, NULL, 10);
+    fflush(stdin);
 }
 
 void getFloat(const char *message, float *num, int buffsz){
     char getfloat[buffsz+1];
     printf("%s", message);
     fgets(getfloat, sizeof(getfloat), stdin);
-    fflush(stdin);
     *num = strtof(getfloat, NULL);
+    fflush(stdin);
 }
 
 void retire(User **userarr, int *usernum, int *mode){
@@ -75,30 +82,35 @@ void retire(User **userarr, int *usernum, int *mode){
     int id;
     float quant;
 
-    getInt("Ingresa tu id: ",&id, 10);
-    if(id > *usernum){
-        printf("Id invalido, por favor intentelo de nuevo\n");
-        waitForEnter();
-        *mode = 0;
+    getInt("Ingrese su id: ",&id, 10);
+    if(id < 0 || id > (*usernum) || (*usernum) == 0){
+        sendError("Id invalido, por favor intentelo de nuevo", mode);
+        return;
     }
 
-    getString("Ingresa tu nip: ", nip);
-    getFloat("Ingresa la cantidad a retirar: ", &quant, 10);
-    if(quant <= 0.0f){
-        printf("Acciones no disponibles\n");
-        waitForEnter();
-        *mode = 0;
+    getString("Ingrese su nip: ", nip, 4);
+    if(strcmp(nip, (*userarr)[id].nip) != 0){
+        sendError("Nip incorrecto", mode);
+        return;
     }
-    printf("Por favor espere un momento\n");
-    sleep(1);
-    waitForEnter();
+
+    getFloat("Ingrese la cantidad a retirar: ", &quant, 10);
+    if(quant <= 0.0f){
+        sendError("Acciones no disponibles", mode);
+        return;
+    }
 
     if(strcmp(nip, (*userarr)[id].nip) == 0 && quant <= (*userarr)[id].money){
-        quant -= (*userarr)[id].money;
+        (*userarr)[id].money -= quant;
     }else{
-        printf("Error: Fondos insuficientes\n");
-        waitForEnter();
+        sendError("Error: Fondos insuficientes", mode);
+        return;
     }
+
+    puts("Por favor espere un momento...");
+    sleep(1);
+    puts("Por favor recoja su dinero");
+    waitForEnter();
     *mode = 0;
 }
 
@@ -107,63 +119,61 @@ void deposit(User **userarr, int *usernum, int *mode){
     int id;
     float quant;
 
-    getInt("Ingresa tu id: ",&id, 10);
-    if(id > *usernum || id < 0){
-        printf("Id invalido, por favor intentelo de nuevo\n");
-        waitForEnter();
-        *mode = 0;
-    }
-    getString("Ingresa tu nip: ", nip);
-
-    if(strlen(nip) < 4){
-        puts("Error: nip no valido");
-        *mode = 0;
+    getInt("Ingrese su id: ",&id, 10);
+    if(id < 0 || id > (*usernum) || (*usernum) == 0){
+        sendError("Id invalido, por favor intentelo de nuevo", mode);
+        return;
     }
 
-    getFloat("Ingresa la cantidad a almacenar: ", &quant, 10);
+    getString("Ingrese su nip: ", nip, 4);
+    if(strcmp(nip, (*userarr)[id].nip) != 0){
+        sendError("Error: nip no valido", mode);
+        return;
+    }
 
+    getFloat("Ingrese la cantidad a almacenar: ", &quant, 10);
     if(quant <= 0.0f){
-        printf("Acciones no disponibles");
-        waitForEnter();
-        *mode = 0;
+        sendError("Por favor, ingrese una cantidad valida", mode);
+        return;
     }
-    printf("Por favor introduzca $%.5f a la maquina\n", quant);
+
+    printf("Por favor introduzca $%.2f a la maquina\n", quant);
     sleep(2);
-    waitForEnter();
 
     if(strcmp(nip, (*userarr)[id].nip) == 0){
         (*userarr)[id].money += quant;
     }else{
-        printf("Error: Datos incorrectos\n");
-        waitForEnter();
+        sendError("Error: Datos incorrectos", mode);
+        return;
     }
+    waitForEnter();
     *mode = 0;
 }
 
 void selectUser(User **userarr, int *usernum, int *mode){
     int id;
     char nip[5];
-    printf(CLEAR"\n\tPerfiles\n");
 
-    for(int i = 0; i <= (*usernum); i++){
+    printf("\tusernum: %d\n", (*usernum));
+    printf(CLEAR"\n\tPerfiles\n");
+    if((*usernum) == 0){
+        sendError("No hay usuarios disponibles", mode);
+        return;
+    }
+
+    for(int i = 0; i < (*usernum); i++){
         printf("Usuario: %d\tNombre:\t%s\n", i, (*userarr)[i].name);
     }
 
-    getInt("Ingresa el id de usuario: ",&id, 4);
-    getString("Ingresa el nip de usuario: ", nip);
+    getInt("Ingrese el id de usuario: ",&id, 4);
+    getString("Ingrese el nip de usuario: ", nip, 4);
 
     if(strcmp(nip, (*userarr)[id].nip) == 0){
-        printf(CLEAR);
-        printf("\n\n");
-        printf("\tNombre:\t%s\n",(*userarr)[id].name);
-        printf("\tDinero:\t%.2f\n",(*userarr)[id].money);
-        printf("\tId:\t%d\n",(*userarr)[id].id);
-        printf("\tNip:\t%s\n",(*userarr)[id].nip);
+        printUser((*userarr)[id]);
         waitForEnter();
     }else{
-        printf("Error: Datos incorrectos\n");
-        waitForEnter();
-        *mode = 0;
+        sendError("Error: Datos incorrectos", mode);
+        return;
     }
     *mode = 0;
 }
@@ -172,52 +182,50 @@ void getInfo(User **userarr, int *usernum, int *mode){
     char nip[5];
     int id;
 
-    getInt("Ingresa tu id: ", &id, 10);
-    getString("Ingresa tu nip: ", nip);
-
-    if(id > (*usernum)){
-        printf("Error: Datos incorrectos\n");
-        waitForEnter();
-        *mode = 0;
+    getInt("Ingrese su id: ", &id, 10);
+    if(id < 0 || id > (*usernum) || (*usernum) == 0){
+        sendError("Error: Datos incorrectos", mode);
+        return;
     }
 
+    getString("Ingrese su nip: ", nip, 4);
     if(strcmp(nip, (*userarr)[id].nip) == 0){
         printUser((*userarr)[id]);
         waitForEnter();
     }else{
-        printf("Error: Datos incorrectos\n");
-        waitForEnter();
-        *mode = 0;
+        sendError("Error: Datos incorrectos", mode);
+        return;
     }
 
     *mode = 0;
 }
 
 void newUser(User **userarr, int *usernum, int *mode){
-    User TempUser = {0};
+    User tempUser = {0};
+    getString("Ingrese su nombre: ", tempUser.name, sizeof(tempUser.name));
+    getString("Ingrese su nip: ", tempUser.nip, 4);
 
-    getString("Ingresa tu nombre: ", TempUser.name);
-    getString("Ingresa tu nip: ", TempUser.nip);
+    tempUser.id = (*usernum);
+    tempUser.money = 0.0f;
 
-    if(strlen(TempUser.nip) < 4){
-        puts(CLEAR);
-        puts("El nip proporcionado necesita ser de 4 caracteres\n");
-        waitForEnter();
-        *mode = 0;
+    if(strlen(tempUser.nip) != 4){
+        sendError("El nip proporcionado necesita ser de 4 caracteres", mode);
         return;
     }
 
-    *userarr = realloc(*userarr, sizeof(User)*((*usernum) + 1));
-    strcpy((*userarr)[(*usernum)].name, TempUser.name);
-    strcpy((*userarr)[(*usernum)].nip, TempUser.nip);
-    (*userarr)[(*usernum)].id = (*usernum);
-    (*userarr)[(*usernum)].money = 0.0f;
+    *userarr = realloc((*userarr), sizeof(User)*((*usernum)+1));
+
+    // Copying the structure into the final user
+    strcpy((*userarr)[(*usernum)].name, tempUser.name);
+    strcpy((*userarr)[(*usernum)].nip, tempUser.nip);
+    (*userarr)[(*usernum)].id = tempUser.id;
+    (*userarr)[(*usernum)].money = tempUser.money;
 
     printUser((*userarr)[(*usernum)]);
-    printf("Tu id es %d\nPerfil guardado exitosamente\n", *usernum);
+    (*usernum)++;
 
+    printf("Su id es %d\nPerfil guardado exitosamente\n", (*usernum)-1);
     waitForEnter();
-    *usernum++;
     *mode = 0;
 }
 
