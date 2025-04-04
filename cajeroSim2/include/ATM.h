@@ -15,11 +15,15 @@ typedef struct {
     int id;
 } User;
 
+void clearBuffer(){
+    fseek(stdin,0,SEEK_END);
+}
+
 void waitForEnter(){
     char str[2];
     printf("Presione enter para continuar...");
     fgets(str, 2, stdin);
-    fflush(stdin);
+    clearBuffer();
     str[strcspn(str, "\n")] = 0;
 }
 
@@ -39,26 +43,26 @@ void printUser(User user){
 }
 
 void printTitle(){
-    puts(CLEAR"Cajero BBVA v1.0.0 rev3");
-    puts(" .----------------.  .----------------.  .----------------.  .----------------. ");
-    puts("| .--------------. || .--------------. || .--------------. || .--------------. |");
-    puts("| |   ______     | || |   ______     | || | ____   ____  | || |      __      | |");
-    puts("| |  |_   _ \\    | || |  |_   _ \\    | || ||_  _| |_  _| | || |     /  \\     | |");
-    puts("| |    | |_) |   | || |    | |_) |   | || |  \\ \\   / /   | || |    / /\\ \\    | |");
-    puts("| |    |  __'.   | || |    |  __'.   | || |   \\ \\ / /    | || |   / ____ \\   | |");
-    puts("| |   _| |__) |  | || |   _| |__) |  | || |    \\ ' /     | || | _/ /    \\ \\_ | |");
-    puts("| |  |_______/   | || |  |_______/   | || |     \\_/      | || ||____|  |____|| |");
-    puts("| |              | || |              | || |              | || |              | |");
-    puts("| '--------------' || '--------------' || '--------------' || '--------------' |");
-    puts(" '----------------'  '----------------'  '----------------'  '----------------' ");
-    puts("Bienvenido");
+    printf(CLEAR"Cajero BBVA v1.0.0 rev3\n");
+    printf(" .----------------.  .----------------.  .----------------.  .----------------. \n");
+    printf("| .--------------. || .--------------. || .--------------. || .--------------. |\n");
+    printf("| |   ______     | || |   ______     | || | ____   ____  | || |      __      | |\n");
+    printf("| |  |_   _ \\    | || |  |_   _ \\    | || ||_  _| |_  _| | || |     /  \\     | |\n");
+    printf("| |    | |_) |   | || |    | |_) |   | || |  \\ \\   / /   | || |    / /\\ \\    | |\n");
+    printf("| |    |  __'.   | || |    |  __'.   | || |   \\ \\ / /    | || |   / ____ \\   | |\n");
+    printf("| |   _| |__) |  | || |   _| |__) |  | || |    \\ ' /     | || | _/ /    \\ \\_ | |\n");
+    printf("| |  |_______/   | || |  |_______/   | || |     \\_/      | || ||____|  |____|| |\n");
+    printf("| |              | || |              | || |              | || |              | |\n");
+    printf("| '--------------' || '--------------' || '--------------' || '--------------' |\n");
+    printf(" '----------------'  '----------------'  '----------------'  '----------------' \n");
+    printf("Bienvenido\n");
 }
 
 void getString(const char* message, char* str, const int buffsz){
     printf("%s",message);
     fgets(str, buffsz+1, stdin);
     str[strcspn(str, "\n")] = 0;
-    fflush(stdin);
+    clearBuffer();
 }
 
 void getInt(const char *message, int *num, int buffsz){
@@ -66,7 +70,7 @@ void getInt(const char *message, int *num, int buffsz){
     printf("%s", message);
     fgets(getint, sizeof(getint), stdin);
     *num = strtol(getint, NULL, 10);
-    fflush(stdin);
+    clearBuffer();
 }
 
 void getFloat(const char *message, float *num, int buffsz){
@@ -74,7 +78,7 @@ void getFloat(const char *message, float *num, int buffsz){
     printf("%s", message);
     fgets(getfloat, sizeof(getfloat), stdin);
     *num = strtof(getfloat, NULL);
-    fflush(stdin);
+    clearBuffer();
 }
 
 void retire(User **userarr, int *usernum, int *mode){
