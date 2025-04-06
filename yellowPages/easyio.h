@@ -3,6 +3,12 @@
 
 #include <stdio.h>
 
+#define CLEAR "\e[1;1H\e[2J"
+
+int randint(int min, int max){
+    return rand() % ((max+1) -min) + min;
+}
+
 void clearBuffer(){
     fseek(stdin,0,SEEK_END);
 }
